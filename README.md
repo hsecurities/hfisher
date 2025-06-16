@@ -1,9 +1,4 @@
 <!-- hfisher -->
-
-<p align="center">
-  <img src=".github/misc/logo.png">
-</p>
-
 <p align="center">
   <img src="https://img.shields.io/badge/Version-1.0.5-green?style=for-the-badge">
   <img src="https://img.shields.io/github/license/hsecurities/hfisher?style=for-the-badge">

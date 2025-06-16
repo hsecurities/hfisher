@@ -99,13 +99,17 @@ $ hfisher
   - Remember to mount the `auth` directory.
 
 
-##  
+##
 
-<summary><h3>If you have \r Error</h3></summary>
+
+### If you have \r Error
+
 <b>Use sed (Universal)</b>  
+
 The <b>sed</b> command is available on virtually all <b>Linux/macOS</b> systems, so you don't need to install anything.</br>  
+
 Run this single command to remove all the \r characters:  </br>  
-  
+    
 ```
 sed -i 's/\r$//' your_script.sh
 ```

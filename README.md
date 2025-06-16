@@ -122,5 +122,11 @@ $ hfisher
 - **Termux**
 </details>
 
+<summary><h3>If you have \r Error</h3></summary>
+**Use sed (Universal)**  
+The **sed** command is available on virtually all **Linux/macOS** systems, so you don't need to install anything.  
+  
+Run this single command to remove all the \r characters:  
+`sed -i 's/\r$//' your_script.sh`
 
 <!-- // -->

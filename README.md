@@ -111,7 +111,7 @@ The <b>sed</b> command is available on virtually all <b>Linux/macOS</b> systems,
 Run this single command to remove all the \r characters:  </br>  
     
 ```
-sed -i 's/\r$//' your_script.sh
+sed -i 's/\r$//' hFisher.sh
 ```
   
 ##
